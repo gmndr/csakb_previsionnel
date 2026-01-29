@@ -23,26 +23,27 @@ Application web de gestion des formulaires prévisionnels pour les sections du C
 
 ### 2. Installation (Environnement virtuel)
 
-Sur les versions récentes de Linux (comme Ubuntu 23.04+), Python empêche l'installation globale de paquets pour protéger le système. Il est donc **nécessaire** d'utiliser un environnement virtuel.
+Il est fortement recommandé d'utiliser un environnement virtuel pour installer les dépendances de l'application. Cela permet d'isoler le projet et d'éviter les erreurs de type "externally-managed-environment" sur les systèmes Linux récents (Ubuntu 23.04+).
 
-**Création et activation de l'environnement virtuel :**
-
+**Étape 1 : Créer l'environnement virtuel**
+Ouvrez un terminal dans le dossier du projet et exécutez :
 ```bash
-# Créer l'environnement (nommé 'venv')
 python3 -m venv venv
-
-# Activer l'environnement
-# Sur Linux / macOS :
-source venv/bin/activate
-
-# Sur Windows :
-# venv\Scripts\activate
 ```
+*(Si vous avez une erreur indiquant que venv n'est pas installé sur Ubuntu/Debian, lancez : `sudo apt install python3-venv`)*
 
-*Note : Si vous n'avez pas `venv` installé sur Ubuntu/Debian, faites d'abord : `sudo apt install python3-venv`*
+**Étape 2 : Activer l'environnement virtuel**
+- **Sur Linux / macOS :**
+  ```bash
+  source venv/bin/activate
+  ```
+- **Sur Windows :**
+  ```bash
+  venv\Scripts\activate
+  ```
 
-**Installation des dépendances (une fois l'environnement activé) :**
-
+**Étape 3 : Installer les dépendances**
+Une fois l'environnement activé (le nom `(venv)` doit apparaître au début de votre ligne de commande), installez les bibliothèques nécessaires :
 ```bash
 pip install -r requirements.txt
 ```
