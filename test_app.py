@@ -60,6 +60,10 @@ def test_export(client):
         'data': {'fed': 'FFT'}
     })
 
-    rv = client.get('/export_files')
+    rv = client.get('/export/xlsx')
     assert rv.status_code == 200
-    assert rv.mimetype == 'application/zip'
+    assert rv.mimetype == 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+
+    rv = client.get('/export/pdf')
+    assert rv.status_code == 200
+    assert rv.mimetype == 'application/pdf'

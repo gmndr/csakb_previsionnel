@@ -63,29 +63,19 @@ def save_response():
     db.session.commit()
     return jsonify({'success': True})
 
-@app.route('/export_files')
-def export_files():
-    if 'section_id' not in session:
-        return redirect(url_for('index'))
+@app.route('/export/xlsx')
+def export_xlsx():
+    if 'section_id' not in session: return redirect(url_for('index'))
+    xlsx_path, _ = generate_exports(session['section_id'])
+    if not xlsx_path: return "Erreur lors de la génération", 500
+    return send_file(xlsx_path, as_attachment=True)
 
-    xlsx_path, pdf_path = generate_exports(session['section_id'])
-
-    if not xlsx_path or not pdf_path:
-        return "Erreur lors de la génération", 500
-
-    # Créer un ZIP contenant les deux fichiers pour le téléchargement
-    memory_file = io.BytesIO()
-    with zipfile.ZipFile(memory_file, 'w') as zf:
-        zf.write(xlsx_path, os.path.basename(xlsx_path))
-        zf.write(pdf_path, os.path.basename(pdf_path))
-    memory_file.seek(0)
-
-    return send_file(
-        memory_file,
-        mimetype='application/zip',
-        as_attachment=True,
-        download_name=f"exports_{session['section_name'].replace(' ', '_')}.zip"
-    )
+@app.route('/export/pdf')
+def export_pdf():
+    if 'section_id' not in session: return redirect(url_for('index'))
+    _, pdf_path = generate_exports(session['section_id'])
+    if not pdf_path: return "Erreur lors de la génération", 500
+    return send_file(pdf_path, as_attachment=True)
 
 @app.route('/form/<int:theme_id>')
 def form_view(theme_id):

@@ -51,10 +51,16 @@
     <div class="col-12 text-center">
         <hr>
         <div class="mt-4">
-            <a href="{{ url_for('export_files') }}" class="btn btn-success btn-lg">
-                <i class="bi bi-file-earmark-arrow-down"></i> Générer les exports (XLSX & PDF)
-            </a>
-            <p class="text-muted mt-2 small">Note : Cela générera les fichiers basés sur vos dernières sauvegardes.</p>
+            <h4 class="mb-3">Exporter les données</h4>
+            <div class="d-flex justify-content-center gap-3">
+                <a href="{{ url_for('export_xlsx') }}" class="btn btn-success btn-lg">
+                    <i class="bi bi-file-earmark-spreadsheet"></i> Télécharger l'Excel (4 onglets)
+                </a>
+                <a href="{{ url_for('export_pdf') }}" class="btn btn-danger btn-lg">
+                    <i class="bi bi-file-earmark-pdf"></i> Télécharger le PDF complet
+                </a>
+            </div>
+            <p class="text-muted mt-3 small">Note : Chaque fichier contient l'ensemble des 4 thématiques basées sur vos dernières sauvegardes.</p>
         </div>
     </div>
 </div>
