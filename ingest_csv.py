@@ -7,7 +7,13 @@ def run():
 
         # Sections
         if not Section.query.first():
-            for name in ["Section Football", "Section Judo", "Section Natation", "Section Tennis", "Section Danse"]:
+            sections = [
+                "Arts Martiaux", "Athlétisme", "Badminton", "Basketball", "Boxe",
+                "Escrime", "Football", "Grappling", "Gymnastique", "Handball",
+                "Marche Nordique", "Multisports", "Natation", "Omnisports",
+                "Plongée Apnée NAP", "Taekwondo", "Tennis", "Yoga"
+            ]
+            for name in sections:
                 db.session.add(Section(name=name))
 
         # Form 1: Budget (Type Grid/List)

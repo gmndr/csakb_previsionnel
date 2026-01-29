@@ -5,14 +5,11 @@ from datetime import datetime
 from exports import generate_exports
 import zipfile
 import io
-from dotenv import load_dotenv
-
-load_dotenv()
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'sqlite:///database.db')
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.secret_key = os.getenv('FLASK_SECRET_KEY', 'default-secret-key')
+app.secret_key = 'csakb-secret-key-2025'
 
 db.init_app(app)
 
@@ -98,7 +95,7 @@ def form_view(theme_id):
 def admin_login():
     if request.method == 'POST':
         password = request.form.get('password')
-        if password == os.getenv('ADMIN_PASSWORD', 'admin123'):
+        if password == 'admin123': # Mot de passe en dur
             session['is_admin'] = True
             return redirect(url_for('admin_dashboard'))
     return render_template('admin_login.html')

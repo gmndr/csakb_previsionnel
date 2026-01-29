@@ -3,5 +3,4 @@ Flask-SQLAlchemy
 pandas
 openpyxl
 fpdf2
-python-dotenv
 pytest

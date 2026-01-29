@@ -47,14 +47,7 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-### 3. Configuration
-Copiez le fichier `.env.example` vers un nouveau fichier `.env` :
-```bash
-cp .env.example .env
-```
-Modifiez les valeurs dans `.env` (notamment `FLASK_SECRET_KEY` et `ADMIN_PASSWORD`).
-
-### 4. Initialisation des données
+### 3. Initialisation des données
 Pour créer la base de données et importer les sections et structures de base depuis les fichiers CSV :
 ```bash
 python ingest_csv.py
@@ -88,4 +81,4 @@ pytest test_app.py
 ## 🔐 Accès Administrateur
 
 L'accès se fait via le bouton "Admin" en haut à droite (ou via `/admin`).
-Le mot de passe par défaut est défini dans le fichier `.env` (`admin123` par défaut).
+Le mot de passe est **admin123**.
