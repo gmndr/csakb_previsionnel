@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow">
+            <div class="card-header text-center">
+                <h3>Bienvenue</h3>
+            </div>
+            <div class="card-body p-4">
+                <p class="text-center">Veuillez sélectionner votre section pour accéder aux formulaires.</p>
+                <form action="{{ url_for('select_section') }}" method="post">
+                    <div class="mb-3">
+                        <label for="section_id" class="form-label">Section</label>
+                        <select name="section_id" id="section_id" class="form-select" required>
+                            <option value="">-- Choisir une section --</option>
+                            {% for section in sections %}
+                            <option value="{{ section.id }}">{{ section.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-royal">Continuer</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

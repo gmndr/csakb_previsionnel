@@ -1,0 +1,129 @@
+from app import app
+from models import db, Section, FormTemplate
+
+def run():
+    with app.app_context():
+        db.create_all()
+
+        # Sections
+        if not Section.query.first():
+            for name in ["Section Football", "Section Judo", "Section Natation", "Section Tennis", "Section Danse"]:
+                db.session.add(Section(name=name))
+
+        # Form 1: Budget (Type Grid/List)
+        if not FormTemplate.query.filter_by(theme=1, version=1).first():
+            struct = {
+                "type": "budget",
+                "groups": [
+                    {
+                        "title": "Informations Générales",
+                        "fields": [
+                            {"id": "fed", "label": "Fédération", "type": "text"},
+                            {"id": "nb_lic", "label": "Nb adhérents licencié/assuré", "type": "number"},
+                            {"id": "nb_non_lic", "label": "Nb adhérents non licencié", "type": "number"},
+                            {"id": "nb_fem", "label": "Nb Féminines 2024-2025", "type": "number"},
+                            {"id": "nb_fem_18", "label": "dont - de 18 ans", "type": "number"},
+                            {"id": "nb_masc", "label": "Nb Masculins 2024-2025", "type": "number"},
+                            {"id": "nb_masc_18", "label": "dont - de 18 ans", "type": "number"},
+                            {"id": "nb_entraineurs", "label": "Nb Entraineurs", "type": "number"},
+                            {"id": "nb_ben_perm", "label": "Nb de Bénévoles Permanents", "type": "number"},
+                            {"id": "h_ben_perm", "label": "Nb d'heures annuelles (Permanents)", "type": "number"},
+                            {"id": "nb_ben_occ", "label": "Nb de Bénévoles Occasionnels", "type": "number"},
+                            {"id": "h_ben_occ", "label": "Nb d'heures annuelles (Occasionnels)", "type": "number"},
+                        ]
+                    },
+                    {
+                        "title": "1 - RECETTES",
+                        "fields": [
+                            {"id": "cot_nb", "label": "Nombre d'adhérents cotisants", "type": "number"},
+                            {"id": "cot_prix", "label": "Prix moyen de cotisation", "type": "number"},
+                            {"id": "cot_club", "label": "Cotisation Club (Prélèvement 20€)", "type": "number"},
+                            {"id": "sub_hors_mairie", "label": "Subvention hors mairie", "type": "number"},
+                            {"id": "sponsors", "label": "Sponsors / Mécène", "type": "number"},
+                            {"id": "recettes_evt", "label": "Recettes événementiel", "type": "number"},
+                            {"id": "part_equip", "label": "Participation équipement", "type": "number"},
+                            {"id": "part_depl", "label": "Participation déplacements", "type": "number"},
+                            {"id": "part_stages", "label": "Participation stages", "type": "number"},
+                        ]
+                    },
+                    {
+                        "title": "2 - DÉPENSES",
+                        "fields": [
+                            {"id": "dep_materiel", "label": "Matériel et équipement", "type": "number"},
+                            {"id": "dep_evt", "label": "Evénementiel", "type": "number"},
+                            {"id": "dep_stages", "label": "Stages", "type": "number"},
+                            {"id": "dep_formation", "label": "Formation", "type": "number"},
+                            {"id": "dep_depl", "label": "Déplacements", "type": "number"},
+                            {"id": "dep_gestion", "label": "Frais de gestion", "type": "number"},
+                            {"id": "dep_affiliation", "label": "Affiliation", "type": "number"},
+                            {"id": "dep_arbitrage", "label": "Arbitrage et Juge", "type": "number"},
+                            {"id": "dep_licences", "label": "Licences", "type": "number"},
+                            {"id": "dep_salaires", "label": "Salaires (Charges incluses)", "type": "number"},
+                            {"id": "dep_defraiements", "label": "Défraiements", "type": "number"},
+                        ]
+                    },
+                    {
+                        "title": "Solde et Demande",
+                        "fields": [
+                            {"id": "sub_demandee", "label": "Subvention demandée", "type": "number"},
+                            {"id": "justification", "label": "Justification de la demande", "type": "textarea"},
+                        ]
+                    }
+                ]
+            }
+            db.session.add(FormTemplate(theme=1, version=1, structure=struct))
+
+        # Form 2: Bureau (Fixed rows for 3 positions)
+        if not FormTemplate.query.filter_by(theme=2, version=1).first():
+            struct = {
+                "type": "fixed_table",
+                "cols": ["Président", "Trésorier", "Secrétaire"],
+                "rows": [
+                    {"id": "nom", "label": "Nom"},
+                    {"id": "prenom", "label": "Prénom"},
+                    {"id": "email", "label": "Adresse mail"},
+                    {"id": "tel", "label": "Tel Portable"}
+                ]
+            }
+            db.session.add(FormTemplate(theme=2, version=1, structure=struct))
+
+        # Form 3: Formation (Dynamic Table)
+        if not FormTemplate.query.filter_by(theme=3, version=1).first():
+            struct = {
+                "type": "dynamic_table",
+                "cols": [
+                    {"id": "nom", "label": "Nom"},
+                    {"id": "prenom", "label": "Prénom"},
+                    {"id": "bpjeps", "label": "BPJEPS"},
+                    {"id": "be", "label": "BE"},
+                    {"id": "federal", "label": "FEDERAL"},
+                    {"id": "autre", "label": "AUTRE"},
+                    {"id": "appellation", "label": "Appellation"},
+                    {"id": "v2025", "label": "2025"},
+                    {"id": "v2026", "label": "2026"},
+                    {"id": "v2027", "label": "2027"},
+                    {"id": "organisme", "label": "Organisme"}
+                ]
+            }
+            db.session.add(FormTemplate(theme=3, version=1, structure=struct))
+
+        # Form 4: Salariés (Dynamic Table)
+        if not FormTemplate.query.filter_by(theme=4, version=1).first():
+            struct = {
+                "type": "dynamic_table",
+                "cols": [
+                    {"id": "nom_prenom", "label": "Noms et Prénom"},
+                    {"id": "type_contrat", "label": "Type de contrat"},
+                    {"id": "taux_horaire", "label": "Taux horaire Net"},
+                    {"id": "heures_hebdo", "label": "Heures hebdomadaires"},
+                    {"id": "nb_semaines", "label": "Nombre de semaines"},
+                    {"id": "mutuelle", "label": "Mutuelle club"}
+                ]
+            }
+            db.session.add(FormTemplate(theme=4, version=1, structure=struct))
+
+        db.session.commit()
+        print("Initialisation des données terminée.")
+
+if __name__ == '__main__':
+    run()
