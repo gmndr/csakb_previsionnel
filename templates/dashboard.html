@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h2 class="section-title">Tableau de bord - {{ section.name }}</h2>
+        <p>Veuillez remplir les 4 formulaires suivants. Vous pouvez les remplir dans l'ordre de votre choix et revenir plus tard pour terminer.</p>
+    </div>
+</div>
+
+<div class="row row-cols-1 row-cols-md-2 g-4 mt-2">
+    <div class="col">
+        <div class="card h-100 shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title">1. Budget prévisionnel</h5>
+                <p class="card-text">Détail des recettes et dépenses prévues pour l'année.</p>
+                <a href="{{ url_for('form_view', theme_id=1) }}" class="btn btn-royal">Ouvrir le formulaire</a>
+            </div>
+        </div>
+    </div>
+    <div class="col">
+        <div class="card h-100 shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title">2. Bureau directeur</h5>
+                <p class="card-text">Composition du bureau (Président, Trésorier, Secrétaire).</p>
+                <a href="{{ url_for('form_view', theme_id=2) }}" class="btn btn-royal">Ouvrir le formulaire</a>
+            </div>
+        </div>
+    </div>
+    <div class="col">
+        <div class="card h-100 shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title">3. Diplômes et plan de formation</h5>
+                <p class="card-text">Suivi des diplômes et formations des intervenants.</p>
+                <a href="{{ url_for('form_view', theme_id=3) }}" class="btn btn-royal">Ouvrir le formulaire</a>
+            </div>
+        </div>
+    </div>
+    <div class="col">
+        <div class="card h-100 shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title">4. Salariés</h5>
+                <p class="card-text">Informations sur les salariés et apprentis.</p>
+                <a href="{{ url_for('form_view', theme_id=4) }}" class="btn btn-royal">Ouvrir le formulaire</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-5">
+    <div class="col-12 text-center">
+        <hr>
+        <div class="mt-4">
+            <h4 class="mb-3">Exporter les données</h4>
+            <div class="d-flex justify-content-center gap-3">
+                <a href="{{ url_for('export_xlsx') }}" class="btn btn-success btn-lg">
+                    <i class="bi bi-file-earmark-spreadsheet"></i> Télécharger l'Excel (4 onglets)
+                </a>
+                <a href="{{ url_for('export_pdf') }}" class="btn btn-danger btn-lg">
+                    <i class="bi bi-file-earmark-pdf"></i> Télécharger le PDF complet
+                </a>
+            </div>
+            <p class="text-muted mt-3 small">Note : Chaque fichier contient l'ensemble des 4 thématiques basées sur vos dernières sauvegardes.</p>
+        </div>
+    </div>
+</div>
+{% endblock %}
