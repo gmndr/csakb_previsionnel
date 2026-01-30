@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12 d-flex justify-content-between align-items-center mb-4">
+        <h2>Gestion des Formulaires</h2>
+        <a href="{{ url_for('admin_dashboard') }}" class="btn btn-secondary">Retour</a>
+    </div>
+</div>
+
+<div class="row row-cols-1 row-cols-md-2 g-4">
+    {% for template in templates %}
+    <div class="col">
+        <div class="card h-100 shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title">Thème {{ template.theme }}</h5>
+                <p class="card-text">
+                    Type: <strong>{{ template.structure.type }}</strong><br>
+                    Version actuelle: <span class="badge bg-primary">V{{ template.version }}</span>
+                </p>
+                <a href="{{ url_for('admin_edit_form', theme_id=template.theme) }}" class="btn btn-outline-primary">Modifier les libellés</a>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
