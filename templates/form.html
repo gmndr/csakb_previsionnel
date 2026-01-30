@@ -49,6 +49,9 @@
                                             <input type="{{ field.type }}" name="{{ field.id }}" class="form-control" value="{{ data.get(field.id, '') }}"
                                                 {% if field.multiplier is defined %}
                                                     disabled
+                                                    readonly
+                                                    style="background-color: #e9ecef; pointer-events: none;"
+                                                    tabindex="-1"
                                                     data-multiplier="{{ field.multiplier }}"
                                                     data-source="{{ field.source }}"
                                                 {% endif %}>
