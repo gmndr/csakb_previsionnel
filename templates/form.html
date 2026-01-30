@@ -47,9 +47,8 @@
                                             <textarea name="{{ field.id }}" class="form-control" rows="3">{{ data.get(field.id, '') }}</textarea>
                                         {% else %}
                                             <input type="{{ field.type }}" name="{{ field.id }}" class="form-control" value="{{ data.get(field.id, '') }}"
-                                                {% if field.multiplier %}
-                                                    readonly
-                                                    tabindex="-1"
+                                                {% if field.multiplier is defined %}
+                                                    disabled
                                                     data-multiplier="{{ field.multiplier }}"
                                                     data-source="{{ field.source }}"
                                                 {% endif %}>
@@ -170,9 +169,11 @@ function saveForm() {
         });
         data['rows'] = rows;
     {% else %}
-        const formData = new FormData(form);
-        formData.forEach((value, key) => {
-            if (key !== 'template_id') data[key] = value;
+        // Collection manuelle pour inclure les champs disabled
+        form.querySelectorAll('input, textarea, select').forEach(input => {
+            if (input.name && input.name !== 'template_id') {
+                data[input.name] = input.value;
+            }
         });
     {% endif %}
 

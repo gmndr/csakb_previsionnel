@@ -52,10 +52,11 @@
             margin: 0;
             font-weight: 600;
         }
-        input[readonly] {
+        input[readonly], input:disabled, textarea:disabled {
             background-color: #e9ecef !important;
             cursor: not-allowed;
             pointer-events: none;
+            color: #495057;
         }
     </style>
 </head>
