@@ -55,6 +55,9 @@
                                                     tabindex="-1"
                                                     data-multiplier="{{ field.multiplier }}"
                                                     data-source="{{ field.source }}"
+                                                    onfocus="this.blur()"
+                                                    onkeydown="return false;"
+                                                    style="background-color: #e9ecef !important; pointer-events: none !important; cursor: not-allowed !important;"
                                                 {% endif %}>
                                         {% endif %}
                                     </div>
