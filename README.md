@@ -6,14 +6,9 @@ Application web de gestion des formulaires prévisionnels pour les sections du C
 
 - **Saisie de données** : 4 thématiques (Budget prévisionnel, Bureau directeur, Diplômes et plan de formation, Salariés).
 - **Identification par section** : Sélection de la section au démarrage pour personnaliser les exports.
-- **Sauvegarde automatique** : Les formulaires peuvent être remplis indépendamment et sont conservés en base de données.
-- **Exports complets** :
-    - **Excel (XLSX)** : Un seul fichier avec 4 onglets correspondant aux 4 thématiques.
-    - **PDF** : Un seul document avec les thématiques se suivant sur plusieurs pages.
-- **Espace Administrateur** :
-    - Gestion de la liste des sections.
-    - Modification des libellés des questions.
-    - **Gestion des versions** : Toute modification de libellé crée une nouvelle version du formulaire sans altérer les anciennes saisies.
+- **Sauvegarde automatique** : Les formulaires peuvent être remplis indépendamment et sont conservés dans des fichiers JSON.
+- **Exports complets** : aux formats Excel (xlsx) ou PDF.
+- **Espace Administrateur** : Gestion des formulaires et des versions.
 
 ## 🛠️ Installation
 
@@ -28,18 +23,18 @@ Il est fortement recommandé d'utiliser un environnement virtuel pour installer 
 **Étape 1 : Créer l'environnement virtuel**
 Ouvrez un terminal dans le dossier du projet et exécutez :
 ```bash
-python3 -m venv venv
+python3 -m venv .venv
 ```
 *(Si vous avez une erreur indiquant que venv n'est pas installé sur Ubuntu/Debian, lancez : `sudo apt install python3-venv`)*
 
 **Étape 2 : Activer l'environnement virtuel**
 - **Sur Linux / macOS :**
   ```bash
-  source venv/bin/activate
+  source .venv/bin/activate
   ```
 - **Sur Windows :**
   ```bash
-  venv\Scripts\activate
+  .venv\Scripts\activate
   ```
 
 **Étape 3 : Installer les dépendances**
@@ -48,7 +43,7 @@ Une fois l'environnement activé (le nom `(venv)` doit apparaître au début de 
 pip install -r requirements.txt
 ```
 
-### 3. Initialisation des données
+### 4. Initialisation des données
 Pour créer la base de données et importer les sections et structures de base depuis les fichiers CSV :
 ```bash
 python ingest_csv.py
@@ -82,4 +77,3 @@ pytest test_app.py
 ## 🔐 Accès Administrateur
 
 L'accès se fait via le bouton "Admin" en haut à droite (ou via `/admin`).
-Le mot de passe est **admin123**.
