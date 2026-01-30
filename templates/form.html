@@ -49,6 +49,7 @@
                                             <input type="{{ field.type }}" name="{{ field.id }}" class="form-control" value="{{ data.get(field.id, '') }}"
                                                 {% if field.multiplier %}
                                                     readonly
+                                                    tabindex="-1"
                                                     data-multiplier="{{ field.multiplier }}"
                                                     data-source="{{ field.source }}"
                                                 {% endif %}>
