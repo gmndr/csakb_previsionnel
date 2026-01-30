@@ -2,7 +2,7 @@ __pycache__/
 *.py[cod]
 *$py.class
 .env
-instance/
+data/
 exports/
 *.log
 .pytest_cache/

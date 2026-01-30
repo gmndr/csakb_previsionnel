@@ -29,7 +29,6 @@
                 <table class="table">
                     <thead>
                         <tr>
-                            <th>ID</th>
                             <th>Nom</th>
                             <th class="text-end">Actions</th>
                         </tr>
@@ -37,10 +36,9 @@
                     <tbody>
                         {% for section in sections %}
                         <tr>
-                            <td>{{ section.id }}</td>
-                            <td>{{ section.name }}</td>
+                            <td>{{ section }}</td>
                             <td class="text-end">
-                                <a href="{{ url_for('delete_section', id=section.id) }}" class="btn btn-sm btn-danger" onclick="return confirm('Supprimer cette section ?')">Supprimer</a>
+                                <a href="{{ url_for('delete_section', name=section) }}" class="btn btn-sm btn-danger" onclick="return confirm('Supprimer cette section ?')">Supprimer</a>
                             </td>
                         </tr>
                         {% endfor %}

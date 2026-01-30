@@ -27,7 +27,8 @@
 <div class="card shadow">
     <div class="card-body p-4">
         <form id="dynamic-form">
-            <input type="hidden" name="template_id" value="{{ template.id }}">
+            <input type="hidden" name="theme_id" value="{{ theme_id }}">
+            <input type="hidden" name="template_version" value="{{ template.version }}">
 
             {% if template.structure.type == 'budget' %}
                 {% for group in template.structure.groups %}
@@ -151,7 +152,8 @@ function saveForm() {
             'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-            template_id: form.elements['template_id'].value,
+            theme_id: form.elements['theme_id'].value,
+            template_version: form.elements['template_version'].value,
             data: data
         })
     })

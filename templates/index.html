@@ -11,11 +11,11 @@
                 <p class="text-center">Veuillez sélectionner votre section pour accéder aux formulaires.</p>
                 <form action="{{ url_for('select_section') }}" method="post">
                     <div class="mb-3">
-                        <label for="section_id" class="form-label">Section</label>
-                        <select name="section_id" id="section_id" class="form-select" required>
+                        <label for="section_name" class="form-label">Section</label>
+                        <select name="section_name" id="section_name" class="form-select" required>
                             <option value="">-- Choisir une section --</option>
                             {% for section in sections %}
-                            <option value="{{ section.id }}">{{ section.name }}</option>
+                            <option value="{{ section }}">{{ section }}</option>
                             {% endfor %}
                         </select>
                     </div>
