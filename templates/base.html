@@ -46,7 +46,7 @@
         <div class="container">
             <a class="navbar-brand" href="{{ url_for('index') }}">CSAKB Prévisionnel</a>
             <div class="ms-auto">
-                {% if session.get('section_id') %}
+                {% if session.get('section_name') %}
                 <span class="text-white me-3">Session : <strong>{{ session.get('section_name') }}</strong></span>
                 <a href="{{ url_for('index') }}" class="btn btn-outline-light btn-sm">Changer de section</a>
                 {% endif %}

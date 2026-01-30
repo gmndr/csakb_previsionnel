@@ -71,13 +71,13 @@ pytest test_app.py
 ## 📂 Structure du projet
 
 - `app.py` : Point d'entrée de l'application et définition des routes.
-- `models.py` : Modèles de données SQLAlchemy (Sections, Templates, Réponses).
+- `storage.py` : Module de gestion du stockage via fichiers JSON.
 - `exports.py` : Logique de génération des fichiers Excel et PDF.
-- `ingest_csv.py` : Script d'initialisation de la base de données.
+- `ingest_csv.py` : Script d'initialisation des fichiers de données.
 - `templates/` : Fichiers HTML (Jinja2).
 - `modele_csv/` : Contient les fichiers CSV originaux servant de base aux formulaires.
 - `exports/` : Dossier local où sont stockés les fichiers générés (exclus du Git).
-- `instance/` : Contient la base de données SQLite `database.db` (exclue du Git).
+- `data/` : Contient l'ensemble des données de l'application au format JSON (exclu du Git).
 
 ## 🔐 Accès Administrateur
 
