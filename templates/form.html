@@ -1,0 +1,236 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{{ url_for('dashboard') }}">Accueil</a></li>
+    <li class="breadcrumb-item active" aria-current="page">Thématique {{ theme_id }}</li>
+  </ol>
+</nav>
+
+<div class="row">
+    <div class="col-12 d-flex justify-content-between align-items-center mb-4">
+        <div class="title-frame flex-grow-1 me-4 mb-0">
+            <h2>
+                {% if theme_id == 1 %}Budget prévisionnel
+                {% elif theme_id == 2 %}Bureau directeur
+                {% elif theme_id == 3 %}Diplômes et plan de formation
+                {% elif theme_id == 4 %}Salariés
+                {% endif %}
+            </h2>
+        </div>
+        <div>
+            <span class="badge bg-secondary">Version {{ template.version }}</span>
+            <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary ms-2">Retour</a>
+        </div>
+    </div>
+</div>
+
+<div class="card shadow">
+    <div class="card-body p-4">
+        <form id="dynamic-form">
+            <input type="hidden" name="theme_id" value="{{ theme_id }}">
+            <input type="hidden" name="template_version" value="{{ template.version }}">
+
+            {% if template.structure.type == 'budget' %}
+                {% for group in template.structure.groups %}
+                    <div class="title-frame mt-4">
+                        <h4>{{ group.title }}</h4>
+                    </div>
+                    <div class="row mb-4">
+                        <div class="col-lg-10">
+                            {% for field in group.fields %}
+                                <div class="mb-3 row align-items-center">
+                                    <label class="col-sm-7 col-form-label">{{ field.label }}</label>
+                                    <div class="col-sm-5">
+                                        {% if field.type == 'textarea' %}
+                                            <textarea name="{{ field.id }}" class="form-control" rows="3">{{ data.get(field.id, '') }}</textarea>
+                                        {% else %}
+                                            <input type="{{ field.type }}" name="{{ field.id }}" class="form-control" value="{{ data.get(field.id, '') }}"
+                                                {% if field.multiplier is defined %}
+                                                    disabled
+                                                    readonly
+                                                    style="background-color: #e9ecef; pointer-events: none;"
+                                                    tabindex="-1"
+                                                    data-multiplier="{{ field.multiplier }}"
+                                                    data-source="{{ field.source }}"
+                                                {% endif %}>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endfor %}
+
+            {% elif template.structure.type == 'fixed_table' %}
+                <div class="table-responsive">
+                    <table class="table table-bordered">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Poste</th>
+                                {% for col in template.structure.cols %}
+                                    <th>{{ col }}</th>
+                                {% endfor %}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for row in template.structure.rows %}
+                                <tr>
+                                    <th class="table-light">{{ row.label }}</th>
+                                    {% for col in template.structure.cols %}
+                                        {% set field_key = row.id ~ '_' ~ col.lower() %}
+                                        <td>
+                                            <input type="text" name="{{ field_key }}" class="form-control" value="{{ data.get(field_key, '') }}">
+                                        </td>
+                                    {% endfor %}
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+            {% elif template.structure.type == 'dynamic_table' %}
+                <div class="table-responsive">
+                    <table class="table table-bordered" id="dynamic-table">
+                        <thead class="table-light">
+                            <tr>
+                                {% for col in template.structure.cols %}
+                                    <th>{{ col.label }}</th>
+                                {% endfor %}
+                                <th style="width: 50px;"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% set rows = data.get('rows', []) %}
+                            {% if not rows %}
+                                {% set rows = [ {} ] %}
+                            {% endif %}
+
+                            {% for row_data in rows %}
+                                <tr>
+                                    {% for col in template.structure.cols %}
+                                        <td>
+                                            <input type="text" name="row_{{ loop.index0 }}_{{ col.id }}" class="form-control" value="{{ row_data.get(col.id, '') }}">
+                                        </td>
+                                    {% endfor %}
+                                    <td>
+                                        <button type="button" class="btn btn-outline-danger btn-sm" onclick="removeRow(this)">X</button>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    <button type="button" class="btn btn-outline-primary btn-sm" onclick="addRow()">+ Ajouter une ligne</button>
+                </div>
+            {% endif %}
+
+            <div class="mt-5 border-top pt-4 d-flex justify-content-between">
+                <span id="save-status" class="text-muted italic"></span>
+                <button type="button" class="btn btn-royal px-5" onclick="saveForm()">Enregistrer ma saisie</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const computedFields = document.querySelectorAll('input[data-multiplier]');
+    computedFields.forEach(field => {
+        const sourceId = field.getAttribute('data-source');
+        const multiplier = parseFloat(field.getAttribute('data-multiplier'));
+        const sourceInput = document.querySelector(`input[name="${sourceId}"]`);
+
+        if (sourceInput) {
+            const updateValue = () => {
+                const val = parseFloat(sourceInput.value) || 0;
+                field.value = (val * multiplier).toFixed(2).replace(/\.00$/, '');
+            };
+            sourceInput.addEventListener('input', updateValue);
+            // Initial update if source has value and field is empty or doesn't match
+            updateValue();
+        }
+    });
+});
+
+function saveForm() {
+    const form = document.getElementById('dynamic-form');
+    const data = {};
+
+    {% if template.structure.type == 'dynamic_table' %}
+        const rows = [];
+        const tableRows = document.querySelectorAll('#dynamic-table tbody tr');
+
+        tableRows.forEach(tr => {
+            const rowObj = {};
+            {% for col in template.structure.cols %}
+                rowObj['{{ col.id }}'] = tr.querySelector('input[name*="_{{ col.id }}"]').value;
+            {% endfor %}
+            rows.push(rowObj);
+        });
+        data['rows'] = rows;
+    {% else %}
+        // Collection manuelle pour inclure les champs disabled
+        form.querySelectorAll('input, textarea, select').forEach(input => {
+            if (input.name && input.name !== 'template_id') {
+                data[input.name] = input.value;
+            }
+        });
+    {% endif %}
+
+    const status = document.getElementById('save-status');
+    status.innerText = "Enregistrement en cours...";
+
+    fetch("{{ url_for('save_response') }}", {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            theme_id: form.elements['theme_id'].value,
+            template_version: form.elements['template_version'].value,
+            data: data
+        })
+    })
+    .then(response => response.json())
+    .then(result => {
+        if (result.success) {
+            status.innerText = "Dernière sauvegarde à " + new Date().toLocaleTimeString();
+            status.classList.remove('text-danger');
+            status.classList.add('text-success');
+        } else {
+            status.innerText = "Erreur lors de la sauvegarde.";
+            status.classList.add('text-danger');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        status.innerText = "Erreur réseau.";
+    });
+}
+
+function addRow() {
+    const table = document.getElementById('dynamic-table').tBodies[0];
+    const rowCount = table.rows.length;
+    const newRow = table.insertRow();
+
+    {% for col in template.structure.cols %}
+    const cell{{ loop.index0 }} = newRow.insertCell();
+    cell{{ loop.index0 }}.innerHTML = `<input type="text" name="row_${rowCount}_{{ col.id }}" class="form-control">`;
+    {% endfor %}
+
+    const cellActions = newRow.insertCell();
+    cellActions.innerHTML = `<button type="button" class="btn btn-outline-danger btn-sm" onclick="removeRow(this)">X</button>`;
+}
+
+function removeRow(btn) {
+    const row = btn.parentNode.parentNode;
+    row.parentNode.removeChild(row);
+    // Note: If we want to be perfect, we should re-index the names of the inputs
+    // but the current saveForm logic needs careful adjustment or we should just
+    // collect values from the DOM directly.
+}
+</script>
+{% endblock %}
