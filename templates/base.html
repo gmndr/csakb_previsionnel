@@ -54,6 +54,7 @@
         }
         /* Robust styling for "greyed out" fields across all browsers */
         input[readonly], input:disabled, textarea:disabled, .computed-field {
+            background: #e9ecef !important;
             background-color: #e9ecef !important;
             cursor: not-allowed !important;
             pointer-events: none !important;
@@ -61,6 +62,19 @@
             opacity: 1 !important; /* Forces opacity on iOS Safari */
             -webkit-text-fill-color: #495057 !important; /* Forces text color on iOS Safari */
             border: 1px solid #ced4da !important;
+            appearance: none !important;
+            -webkit-appearance: none !important;
+            -moz-appearance: none !important;
+        }
+
+        /* Hide spin buttons for number inputs in computed fields */
+        .computed-field::-webkit-outer-spin-button,
+        .computed-field::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        .computed-field[type=number] {
+            -moz-appearance: textfield;
         }
     </style>
 </head>
