@@ -41,7 +41,7 @@ def run():
                     "fields": [
                         {"id": "cot_nb", "label": "Nombre d'adhérents cotisants", "type": "number"},
                         {"id": "cot_prix", "label": "Prix moyen de cotisation", "type": "number"},
-                        {"id": "cot_club", "label": "Cotisation Club (Prélèvement 20€)", "type": "number"},
+                        {"id": "cot_club", "label": "Cotisation Club (Prélèvement 20€)", "type": "number", "multiplier": 20, "source": "cot_nb"},
                         {"id": "sub_hors_mairie", "label": "Subvention hors mairie", "type": "number"},
                         {"id": "sponsors", "label": "Sponsors / Mécène", "type": "number"},
                         {"id": "recettes_evt", "label": "Recettes événementiel", "type": "number"},

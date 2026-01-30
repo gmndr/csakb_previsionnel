@@ -135,6 +135,10 @@ def admin_edit_form(theme_id):
                     if new_label:
                         new_structure['groups'][g_idx]['fields'][f_idx]['label'] = new_label
 
+                    new_mult = request.form.get(f"mult_{field['id']}")
+                    if new_mult is not None and 'multiplier' in field:
+                        new_structure['groups'][g_idx]['fields'][f_idx]['multiplier'] = float(new_mult)
+
         elif new_structure['type'] == 'fixed_table':
             for r_idx, row in enumerate(new_structure['rows']):
                 new_label = request.form.get(f"label_{row['id']}")
