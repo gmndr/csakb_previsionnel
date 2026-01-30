@@ -46,7 +46,12 @@
                                         {% if field.type == 'textarea' %}
                                             <textarea name="{{ field.id }}" class="form-control" rows="3">{{ data.get(field.id, '') }}</textarea>
                                         {% else %}
-                                            <input type="{{ field.type }}" name="{{ field.id }}" class="form-control" value="{{ data.get(field.id, '') }}">
+                                            <input type="{{ field.type }}" name="{{ field.id }}" class="form-control" value="{{ data.get(field.id, '') }}"
+                                                {% if field.multiplier %}
+                                                    readonly
+                                                    data-multiplier="{{ field.multiplier }}"
+                                                    data-source="{{ field.source }}"
+                                                {% endif %}>
                                         {% endif %}
                                     </div>
                                 </div>
@@ -128,6 +133,25 @@
 
 {% block scripts %}
 <script>
+document.addEventListener('DOMContentLoaded', function() {
+    const computedFields = document.querySelectorAll('input[data-multiplier]');
+    computedFields.forEach(field => {
+        const sourceId = field.getAttribute('data-source');
+        const multiplier = parseFloat(field.getAttribute('data-multiplier'));
+        const sourceInput = document.querySelector(`input[name="${sourceId}"]`);
+
+        if (sourceInput) {
+            const updateValue = () => {
+                const val = parseFloat(sourceInput.value) || 0;
+                field.value = (val * multiplier).toFixed(2).replace(/\.00$/, '');
+            };
+            sourceInput.addEventListener('input', updateValue);
+            // Initial update if source has value and field is empty or doesn't match
+            updateValue();
+        }
+    });
+});
+
 function saveForm() {
     const form = document.getElementById('dynamic-form');
     const data = {};
