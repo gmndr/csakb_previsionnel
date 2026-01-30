@@ -46,11 +46,12 @@
                                         {% if field.type == 'textarea' %}
                                             <textarea name="{{ field.id }}" class="form-control" rows="3">{{ data.get(field.id, '') }}</textarea>
                                         {% else %}
-                                            <input type="{{ field.type }}" name="{{ field.id }}" class="form-control" value="{{ data.get(field.id, '') }}"
+                                            <input type="{{ field.type }}" name="{{ field.id }}"
+                                                class="form-control {% if field.multiplier is defined %}computed-field{% endif %}"
+                                                value="{{ data.get(field.id, '') }}"
                                                 {% if field.multiplier is defined %}
                                                     disabled
                                                     readonly
-                                                    style="background-color: #e9ecef; pointer-events: none;"
                                                     tabindex="-1"
                                                     data-multiplier="{{ field.multiplier }}"
                                                     data-source="{{ field.source }}"
