@@ -19,13 +19,6 @@
                 {% endif %}
             </h2>
         </div>
-        <h2>
-            {% if theme_id == 1 %}Budget prévisionnel
-            {% elif theme_id == 2 %}Bureau directeur
-            {% elif theme_id == 3 %}Diplômes et plan de formation
-            {% elif theme_id == 4 %}Salariés
-            {% endif %}
-        </h2>
         <div>
             <span class="badge bg-secondary">Version {{ template.version }}</span>
             <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary ms-2">Retour</a>
@@ -59,18 +52,6 @@
                                 </div>
                             {% endfor %}
                         </div>
-                    <h4 class="mt-4 mb-3 text-primary">{{ group.title }}</h4>
-                    <div class="row">
-                        {% for field in group.fields %}
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">{{ field.label }}</label>
-                                {% if field.type == 'textarea' %}
-                                    <textarea name="{{ field.id }}" class="form-control" rows="3">{{ data.get(field.id, '') }}</textarea>
-                                {% else %}
-                                    <input type="{{ field.type }}" name="{{ field.id }}" class="form-control" value="{{ data.get(field.id, '') }}">
-                                {% endif %}
-                            </div>
-                        {% endfor %}
                     </div>
                 {% endfor %}
 

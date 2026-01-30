@@ -20,7 +20,7 @@ def run():
             "type": "budget",
             "groups": [
                 {
-                    "title": "Informations Générales",
+                    "title": "1 - Informations Générales",
                     "fields": [
                         {"id": "fed", "label": "Fédération", "type": "text"},
                         {"id": "nb_lic", "label": "Nb adhérents licencié/assuré", "type": "number"},
@@ -37,7 +37,7 @@ def run():
                     ]
                 },
                 {
-                    "title": "1 - RECETTES",
+                    "title": "2 - Recettes",
                     "fields": [
                         {"id": "cot_nb", "label": "Nombre d'adhérents cotisants", "type": "number"},
                         {"id": "cot_prix", "label": "Prix moyen de cotisation", "type": "number"},
@@ -51,7 +51,7 @@ def run():
                     ]
                 },
                 {
-                    "title": "2 - DÉPENSES",
+                    "title": "3 - Dépenses",
                     "fields": [
                         {"id": "dep_materiel", "label": "Matériel et équipement", "type": "number"},
                         {"id": "dep_evt", "label": "Evénementiel", "type": "number"},
@@ -67,7 +67,7 @@ def run():
                     ]
                 },
                 {
-                    "title": "Solde et Demande",
+                    "title": "4 - Solde et Demande",
                     "fields": [
                         {"id": "sub_demandee", "label": "Subvention demandée", "type": "number"},
                         {"id": "justification", "label": "Justification de la demande", "type": "textarea"},
