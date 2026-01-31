@@ -11,23 +11,34 @@ def generate_exports(section_name):
     xlsx_path = os.path.join('exports', f"{filename_base}.xlsx")
     pdf_path = os.path.join('exports', f"{filename_base}.pdf")
 
-    # --- XLSX Generation ---
+    xlsx_res = None
+    pdf_res = None
+
+    try:
+        generate_xlsx(section_name, xlsx_path)
+        xlsx_res = xlsx_path
+    except Exception as e:
+        print(f"Error generating XLSX for {section_name}: {e}")
+
+    try:
+        generate_pdf(section_name, pdf_path)
+        pdf_res = pdf_path
+    except Exception as e:
+        print(f"Error generating PDF for {section_name}: {e}")
+
+    return xlsx_res, pdf_res
+
+def generate_xlsx(section_name, xlsx_path):
     with pd.ExcelWriter(xlsx_path, engine='openpyxl') as writer:
         for theme_id in range(1, 5):
             response = storage.get_response(section_name, theme_id)
-
-            sheet_name = f"Theme {theme_id}"
-            if theme_id == 1: sheet_name = "Budget"
-            elif theme_id == 2: sheet_name = "Bureau"
-            elif theme_id == 3: sheet_name = "Formation"
-            elif theme_id == 4: sheet_name = "Salaries"
+            sheet_name = ["Budget", "Bureau", "Formation", "Salaries"][theme_id-1]
 
             if response:
                 data = response['data']
-                # On récupère le template correspondant à la version sauvegardée
                 template = storage.get_template(theme_id, version=response['template_version'])
-
                 rows = []
+
                 if template['structure']['type'] == 'budget':
                     for group in template['structure']['groups']:
                         rows.append([group['title'], ""])
@@ -52,12 +63,11 @@ def generate_exports(section_name):
                         row = [r_data.get(col['id'], '') for col in template['structure']['cols']]
                         rows.append(row)
 
-                df = pd.DataFrame(rows)
-                df.to_excel(writer, sheet_name=sheet_name, index=False, header=False)
+                pd.DataFrame(rows).to_excel(writer, sheet_name=sheet_name, index=False, header=False)
             else:
                 pd.DataFrame([["Aucune donnée saisie"]]).to_excel(writer, sheet_name=sheet_name, index=False, header=False)
 
-    # --- PDF Generation ---
+def generate_pdf(section_name, pdf_path):
     pdf = FPDF()
     pdf.set_auto_page_break(auto=True, margin=15)
 
@@ -66,20 +76,16 @@ def generate_exports(section_name):
         pdf.set_font("helvetica", 'B', 16)
         pdf.set_text_color(0, 35, 102) # Royal Blue
 
-        title = f"Theme {theme_id}"
-        if theme_id == 1: title = "Budget prévisionnel"
-        elif theme_id == 2: title = "Bureau directeur"
-        elif theme_id == 3: title = "Diplômes et plan de formation"
-        elif theme_id == 4: title = "Salariés"
+        titles = ["Budget prévisionnel", "Bureau directeur", "Diplômes et plan de formation", "Salariés"]
+        title = titles[theme_id-1]
 
-        pdf.cell(0, 10, f"{section_name} - {title}", new_x="LMARGIN", new_y="NEXT", align='C')
+        pdf.cell(0, 10, f"{section_name} - {title}", align='C', new_x="LMARGIN", new_y="NEXT")
         pdf.ln(10)
 
         pdf.set_font("helvetica", '', 12)
         pdf.set_text_color(0, 0, 0)
 
         response = storage.get_response(section_name, theme_id)
-
         if response:
             data = response['data']
             template = storage.get_template(theme_id, version=response['template_version'])
@@ -91,32 +97,36 @@ def generate_exports(section_name):
                     pdf.set_font("helvetica", '', 11)
                     for field in group['fields']:
                         val = str(data.get(field['id'], ''))
-                        pdf.multi_cell(0, 8, f"{field['label']} : {val}")
+                        # Robust multi_cell with explicit width and X reset
+                        pdf.set_x(pdf.l_margin)
+                        pdf.multi_cell(pdf.epw, 8, f"{field['label']} : {val}")
                     pdf.ln(5)
 
-            else:
-                if template['structure']['type'] == 'fixed_table':
-                    for r_def in template['structure']['rows']:
-                        pdf.set_font("helvetica", 'B', 11)
-                        pdf.cell(0, 8, r_def['label'], new_x="LMARGIN", new_y="NEXT")
-                        pdf.set_font("helvetica", '', 11)
-                        for col in template['structure']['cols']:
-                            key = f"{r_def['id']}_{col.lower()}"
-                            pdf.cell(50, 8, f"  {col}:", border=0)
-                            pdf.cell(0, 8, str(data.get(key, '')), new_x="LMARGIN", new_y="NEXT")
+            elif template['structure']['type'] == 'fixed_table':
+                for r_def in template['structure']['rows']:
+                    pdf.set_font("helvetica", 'B', 11)
+                    pdf.set_x(pdf.l_margin)
+                    pdf.multi_cell(pdf.epw, 8, r_def['label'])
+                    pdf.set_font("helvetica", '', 11)
+                    for col in template['structure']['cols']:
+                        key = f"{r_def['id']}_{col.lower()}"
+                        val = str(data.get(key, ''))
+                        pdf.set_x(pdf.l_margin + 10)
+                        pdf.multi_cell(pdf.epw - 10, 8, f"{col}: {val}")
+                    pdf.ln(2)
 
-                elif template['structure']['type'] == 'dynamic_table':
-                    for i, r_data in enumerate(data.get('rows', [])):
-                        pdf.set_font("helvetica", 'B', 11)
-                        pdf.cell(0, 8, f"Ligne {i+1}", new_x="LMARGIN", new_y="NEXT")
-                        pdf.set_font("helvetica", '', 11)
-                        for col in template['structure']['cols']:
-                            val = str(r_data.get(col['id'], ''))
-                            pdf.cell(60, 8, f"  {col['label']}:", border=0)
-                            pdf.cell(0, 8, val, new_x="LMARGIN", new_y="NEXT")
+            elif template['structure']['type'] == 'dynamic_table':
+                for i, r_data in enumerate(data.get('rows', [])):
+                    pdf.set_font("helvetica", 'B', 11)
+                    pdf.set_x(pdf.l_margin)
+                    pdf.cell(0, 8, f"Ligne {i+1}", new_x="LMARGIN", new_y="NEXT")
+                    pdf.set_font("helvetica", '', 11)
+                    for col in template['structure']['cols']:
+                        val = str(r_data.get(col['id'], ''))
+                        pdf.set_x(pdf.l_margin + 10)
+                        pdf.multi_cell(pdf.epw - 10, 8, f"{col['label']}: {val}")
+                    pdf.ln(2)
         else:
             pdf.cell(0, 10, "Aucune donnée saisie pour ce formulaire.", new_x="LMARGIN", new_y="NEXT")
 
     pdf.output(pdf_path)
-
-    return xlsx_path, pdf_path
