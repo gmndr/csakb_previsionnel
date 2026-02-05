@@ -22,14 +22,22 @@
                     {% for field in group.fields %}
                     <div class="mb-3 row">
                         <label class="col-sm-4 col-form-label">{{ field.id }}</label>
-                        <div class="col-sm-{% if field.multiplier is defined %}5{% else %}8{% endif %}">
+                        <div class="col-sm-{% if field.multiplier is defined or field.formula is defined %}4{% else %}8{% endif %}">
                             <input type="text" name="label_{{ field.id }}" class="form-control" value="{{ field.label }}" placeholder="Libellé">
                         </div>
                         {% if field.multiplier is defined %}
-                        <div class="col-sm-3">
+                        <div class="col-sm-4">
                             <div class="input-group">
                                 <span class="input-group-text">Mult :</span>
-                                <input type="number" step="0.01" name="mult_{{ field.id }}" class="form-control" value="{{ field.multiplier }}" title="Multiplicateur pour le calcul automatique">
+                                <input type="number" step="0.01" name="mult_{{ field.id }}" class="form-control" value="{{ field.multiplier }}">
+                            </div>
+                        </div>
+                        {% endif %}
+                        {% if field.formula is defined %}
+                        <div class="col-sm-4">
+                            <div class="input-group">
+                                <span class="input-group-text">Formule :</span>
+                                <input type="text" name="formula_{{ field.id }}" class="form-control" value="{{ field.formula }}">
                             </div>
                         </div>
                         {% endif %}
