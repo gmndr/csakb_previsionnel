@@ -47,14 +47,19 @@
                                             <textarea name="{{ field.id }}" class="form-control" rows="3">{{ data.get(field.id, '') }}</textarea>
                                         {% else %}
                                             <input type="{{ field.type }}" name="{{ field.id }}"
-                                                class="form-control {% if field.multiplier is defined %}computed-field{% endif %}"
+                                                class="form-control {% if field.multiplier is defined or field.formula is defined %}computed-field{% endif %}"
                                                 value="{{ data.get(field.id, '') }}"
-                                                {% if field.multiplier is defined %}
+                                                {% if field.multiplier is defined or field.formula is defined %}
                                                     disabled
                                                     readonly
                                                     tabindex="-1"
-                                                    data-multiplier="{{ field.multiplier }}"
-                                                    data-source="{{ field.source }}"
+                                                    {% if field.multiplier is defined %}
+                                                        data-multiplier="{{ field.multiplier }}"
+                                                        data-source="{{ field.source }}"
+                                                    {% endif %}
+                                                    {% if field.formula is defined %}
+                                                        data-formula="{{ field.formula }}"
+                                                    {% endif %}
                                                     onfocus="this.blur()"
                                                     onkeydown="return false;"
                                                     style="background-color: #e9ecef !important; pointer-events: none !important; cursor: not-allowed !important;"
@@ -141,8 +146,8 @@
 {% block scripts %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const computedFields = document.querySelectorAll('input[data-multiplier]');
-    computedFields.forEach(field => {
+    const multiplierFields = document.querySelectorAll('input[data-multiplier]');
+    multiplierFields.forEach(field => {
         const sourceId = field.getAttribute('data-source');
         const multiplier = parseFloat(field.getAttribute('data-multiplier'));
         const sourceInput = document.querySelector(`input[name="${sourceId}"]`);
@@ -153,10 +158,40 @@ document.addEventListener('DOMContentLoaded', function() {
                 field.value = (val * multiplier).toFixed(2).replace(/\.00$/, '');
             };
             sourceInput.addEventListener('input', updateValue);
-            // Initial update if source has value and field is empty or doesn't match
             updateValue();
         }
     });
+
+    const formulaFields = document.querySelectorAll('input[data-formula]');
+    if (formulaFields.length > 0) {
+        const allInputs = document.querySelectorAll('input[name], textarea[name]');
+
+        const updateAllFormulas = () => {
+            // Run multiple times to resolve dependencies (max 3 levels deep)
+            for (let i = 0; i < 3; i++) {
+                formulaFields.forEach(field => {
+                    let formula = field.getAttribute('data-formula');
+                    const evaluatedFormula = formula.replace(/[a-z_][a-z0-9_]*/g, (match) => {
+                        const input = document.querySelector(`input[name="${match}"]`);
+                        if (input) {
+                            return parseFloat(input.value) || 0;
+                        }
+                        return match;
+                    });
+
+                    try {
+                        const result = eval(evaluatedFormula);
+                        field.value = isFinite(result) ? parseFloat(result).toFixed(2).replace(/\.00$/, '') : 0;
+                    } catch (e) {}
+                });
+            }
+        };
+
+        allInputs.forEach(input => {
+            input.addEventListener('input', updateAllFormulas);
+        });
+        updateAllFormulas();
+    }
 });
 
 function saveForm() {

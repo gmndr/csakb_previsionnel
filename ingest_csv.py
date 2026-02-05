@@ -37,17 +37,31 @@ def run():
                     ]
                 },
                 {
-                    "title": "2 - Recettes",
+                    "title": "2 - Recettes - A - Cotisations",
                     "fields": [
                         {"id": "cot_nb", "label": "Nombre d'adhérents cotisants", "type": "number"},
                         {"id": "cot_prix", "label": "Prix moyen de cotisation", "type": "number"},
-                        {"id": "cot_club", "label": "Cotisation Club (Prélèvement 20€)", "type": "number", "multiplier": 20, "source": "cot_nb"},
+                        {"id": "cot_recettes", "label": "Recettes cotisations", "type": "number", "formula": "cot_nb * cot_prix"},
+                    ]
+                },
+                {
+                    "title": "2 - Recettes - B - Cotisation Club",
+                    "fields": [
+                        {"id": "cot_club", "label": "Prélèvement 20€", "type": "number", "formula": "cot_nb * 20"},
+                        {"id": "cot_totales_nettes", "label": "Recettes totales cotisations", "type": "number", "formula": "cot_recettes - cot_club"},
+                    ]
+                },
+                {
+                    "title": "2 - Recettes - C - Autres produits",
+                    "fields": [
                         {"id": "sub_hors_mairie", "label": "Subvention hors mairie", "type": "number"},
                         {"id": "sponsors", "label": "Sponsors / Mécène", "type": "number"},
                         {"id": "recettes_evt", "label": "Recettes événementiel", "type": "number"},
                         {"id": "part_equip", "label": "Participation équipement", "type": "number"},
                         {"id": "part_depl", "label": "Participation déplacements", "type": "number"},
                         {"id": "part_stages", "label": "Participation stages", "type": "number"},
+                        {"id": "autres_recettes_somme", "label": "Recettes autres produits", "type": "number", "formula": "sub_hors_mairie + sponsors + recettes_evt + part_equip + part_depl + part_stages"},
+                        {"id": "recettes_totales_final", "label": "Recettes totales", "type": "number", "formula": "cot_totales_nettes + autres_recettes_somme"},
                     ]
                 },
                 {
