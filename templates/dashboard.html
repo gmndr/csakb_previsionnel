@@ -2,66 +2,256 @@
 
 {% block content %}
 <div class="row">
-    <div class="col-12">
-        <h2 class="section-title">Tableau de bord - {{ section_name }}</h2>
-        <p>Veuillez remplir les 4 formulaires suivants. Vous pouvez les remplir dans l'ordre de votre choix et revenir plus tard pour terminer.</p>
-    </div>
-</div>
-
-<div class="row row-cols-1 row-cols-md-2 g-4 mt-2">
-    <div class="col">
-        <div class="card h-100 shadow-sm">
-            <div class="card-body">
-                <h5 class="card-title">1. Budget prévisionnel</h5>
-                <p class="card-text">Détail des recettes et dépenses prévues pour l'année.</p>
-                <a href="{{ url_for('form_view', theme_id=1) }}" class="btn btn-royal">Ouvrir le formulaire</a>
-            </div>
-        </div>
-    </div>
-    <div class="col">
-        <div class="card h-100 shadow-sm">
-            <div class="card-body">
-                <h5 class="card-title">2. Bureau directeur</h5>
-                <p class="card-text">Composition du bureau (Président, Trésorier, Secrétaire).</p>
-                <a href="{{ url_for('form_view', theme_id=2) }}" class="btn btn-royal">Ouvrir le formulaire</a>
-            </div>
-        </div>
-    </div>
-    <div class="col">
-        <div class="card h-100 shadow-sm">
-            <div class="card-body">
-                <h5 class="card-title">3. Diplômes et plan de formation</h5>
-                <p class="card-text">Suivi des diplômes et formations des intervenants.</p>
-                <a href="{{ url_for('form_view', theme_id=3) }}" class="btn btn-royal">Ouvrir le formulaire</a>
-            </div>
-        </div>
-    </div>
-    <div class="col">
-        <div class="card h-100 shadow-sm">
-            <div class="card-body">
-                <h5 class="card-title">4. Salariés</h5>
-                <p class="card-text">Informations sur les salariés et apprentis.</p>
-                <a href="{{ url_for('form_view', theme_id=4) }}" class="btn btn-royal">Ouvrir le formulaire</a>
-            </div>
+    <div class="col-12 mb-4 d-flex justify-content-between align-items-center">
+        <h2 class="section-title mb-0">Formulaires de saisie - {{ section_name }}</h2>
+        <div class="d-flex gap-2">
+            <a href="{{ url_for('export_xlsx') }}" class="btn btn-success">
+                <i class="bi bi-file-earmark-spreadsheet"></i> Excel
+            </a>
+            <a href="{{ url_for('export_pdf') }}" class="btn btn-danger">
+                <i class="bi bi-file-earmark-pdf"></i> PDF
+            </a>
         </div>
     </div>
 </div>
 
-<div class="row mt-5">
-    <div class="col-12 text-center">
-        <hr>
-        <div class="mt-4">
-            <h4 class="mb-3">Exporter les données</h4>
-            <div class="d-flex justify-content-center gap-3">
-                <a href="{{ url_for('export_xlsx') }}" class="btn btn-success btn-lg">
-                    <i class="bi bi-file-earmark-spreadsheet"></i> Télécharger l'Excel (4 onglets)
-                </a>
-                <a href="{{ url_for('export_pdf') }}" class="btn btn-danger btn-lg">
-                    <i class="bi bi-file-earmark-pdf"></i> Télécharger le PDF complet
-                </a>
-            </div>
-            <p class="text-muted mt-3 small">Note : Chaque fichier contient l'ensemble des 4 thématiques basées sur vos dernières sauvegardes.</p>
+<form id="mega-form">
+    {% for template in templates %}
+    <div class="card shadow mb-5 theme-section" data-theme-id="{{ template.theme }}" data-version="{{ template.version }}" data-type="{{ template.structure.type }}">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h4 class="mb-0">
+                {% if template.theme == 1 %}I. Budget prévisionnel
+                {% elif template.theme == 2 %}II. Bureau directeur
+                {% elif template.theme == 3 %}III. Diplômes et plan de formation
+                {% elif template.theme == 4 %}IV. Salariés
+                {% endif %}
+            </h4>
+            <span class="badge bg-light text-dark">V{{ template.version }}</span>
+        </div>
+        <div class="card-body p-4">
+            {% set data = responses.get(template.theme, {}) %}
+
+            {% if template.structure.type == 'budget' %}
+                {% for group in template.structure.groups %}
+                    <div class="subtitle-abc">
+                        {{ group.title }}
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-11">
+                            {% for field in group.fields %}
+                                <div class="mb-3 row align-items-center">
+                                    <label class="col-sm-7 col-form-label">{{ field.label }}</label>
+                                    <div class="col-sm-5">
+                                        {% if field.type == 'textarea' %}
+                                            <textarea name="t{{ template.theme }}_{{ field.id }}" class="form-control" rows="3">{{ data.get(field.id, '') }}</textarea>
+                                        {% else %}
+                                            <input type="{{ field.type }}" name="t{{ template.theme }}_{{ field.id }}"
+                                                class="form-control {% if field.formula is defined %}computed-field{% endif %}"
+                                                value="{{ data.get(field.id, '') }}"
+                                                {% if field.formula is defined %}
+                                                    data-formula="{{ field.formula }}"
+                                                    readonly tabindex="-1"
+                                                    onfocus="this.blur()"
+                                                {% endif %}>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endfor %}
+
+            {% elif template.structure.type == 'fixed_table' %}
+                <div class="table-responsive">
+                    <table class="table table-bordered">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Poste</th>
+                                {% for col in template.structure.cols %}
+                                    <th>{{ col }}</th>
+                                {% endfor %}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for row in template.structure.rows %}
+                                <tr>
+                                    <th class="table-light">{{ row.label }}</th>
+                                    {% for col in template.structure.cols %}
+                                        {% set field_key = row.id ~ '_' ~ col.lower() %}
+                                        <td>
+                                            <input type="text" name="t{{ template.theme }}_{{ field_key }}" class="form-control" value="{{ data.get(field_key, '') }}">
+                                        </td>
+                                    {% endfor %}
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+            {% elif template.structure.type == 'dynamic_table' %}
+                <div class="table-responsive">
+                    <table class="table table-bordered dynamic-table" id="table-t{{ template.theme }}">
+                        <thead class="table-light">
+                            <tr>
+                                {% for col in template.structure.cols %}
+                                    <th>{{ col.label }}</th>
+                                {% endfor %}
+                                <th style="width: 50px;"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% set rows = data.get('rows', []) %}
+                            {% if not rows %}{% set rows = [ {} ] %}{% endif %}
+
+                            {% for row_data in rows %}
+                                <tr>
+                                    {% for col in template.structure.cols %}
+                                        <td>
+                                            <input type="text" name="t{{ template.theme }}_row_{{ loop.index0 }}_{{ col.id }}" class="form-control" value="{{ row_data.get(col.id, '') }}">
+                                        </td>
+                                    {% endfor %}
+                                    <td>
+                                        <button type="button" class="btn btn-outline-danger btn-sm" onclick="removeRow(this)">X</button>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    <button type="button" class="btn btn-outline-primary btn-sm" onclick="addRow({{ template.theme }}, {{ template.structure.cols | tojson | safe }})">+ Ajouter une ligne</button>
+                </div>
+            {% endif %}
         </div>
     </div>
-</div>
+    {% endfor %}
+
+    <div class="sticky-bottom bg-white p-3 border-top shadow-sm d-flex justify-content-between align-items-center">
+        <span id="save-status" class="text-muted"></span>
+        <button type="button" class="btn btn-royal btn-lg px-5" onclick="saveAll()">Tout enregistrer</button>
+    </div>
+</form>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    setupFormulas();
+});
+
+function setupFormulas() {
+    const allInputs = document.querySelectorAll('input[name], textarea[name]');
+    const formulaFields = document.querySelectorAll('input[data-formula]');
+
+    const updateAllFormulas = () => {
+        // Multi-pass to resolve dependencies
+        for (let i = 0; i < 4; i++) {
+            formulaFields.forEach(field => {
+                let formula = field.getAttribute('data-formula');
+                const themePrefix = field.name.split('_')[0] + '_'; // e.g., "t1_"
+
+                const evaluatedFormula = formula.replace(/[a-z_][a-z0-9_]*/g, (match) => {
+                    const input = document.querySelector(`input[name="${themePrefix}${match}"]`);
+                    if (input) {
+                        return parseFloat(input.value) || 0;
+                    }
+                    return match;
+                });
+
+                try {
+                    const result = eval(evaluatedFormula);
+                    field.value = isFinite(result) ? parseFloat(result).toFixed(2).replace(/\.00$/, '') : 0;
+                } catch (e) {}
+            });
+        }
+    };
+
+    allInputs.forEach(input => {
+        input.addEventListener('input', updateAllFormulas);
+    });
+    updateAllFormulas();
+}
+
+function addRow(themeId, cols) {
+    const table = document.getElementById(`table-t${themeId}`).tBodies[0];
+    const rowCount = table.rows.length;
+    const newRow = table.insertRow();
+
+    cols.forEach((col, idx) => {
+        const cell = newRow.insertCell();
+        cell.innerHTML = `<input type="text" name="t${themeId}_row_${rowCount}_${col.id}" class="form-control">`;
+    });
+
+    const cellActions = newRow.insertCell();
+    cellActions.innerHTML = `<button type="button" class="btn btn-outline-danger btn-sm" onclick="removeRow(this)">X</button>`;
+}
+
+function removeRow(btn) {
+    const row = btn.parentNode.parentNode;
+    row.parentNode.removeChild(row);
+}
+
+function saveAll() {
+    const status = document.getElementById('save-status');
+    status.innerText = "Enregistrement en cours...";
+
+    const sections = document.querySelectorAll('.theme-section');
+    const themesData = [];
+
+    sections.forEach(section => {
+        const themeId = section.getAttribute('data-theme-id');
+        const version = section.getAttribute('data-version');
+        const type = section.getAttribute('data-type');
+        const data = {};
+
+        if (type === 'dynamic_table') {
+            const rows = [];
+            section.querySelectorAll('tbody tr').forEach(tr => {
+                const rowObj = {};
+                tr.querySelectorAll('input').forEach(input => {
+                    const parts = input.name.split('_');
+                    const colId = parts[parts.length - 1];
+                    rowObj[colId] = input.value;
+                });
+                if (Object.values(rowObj).some(v => v !== '')) {
+                    rows.push(rowObj);
+                }
+            });
+            data['rows'] = rows;
+        } else {
+            section.querySelectorAll('input, textarea').forEach(input => {
+                // remove tX_ prefix
+                const name = input.name.substring(input.name.indexOf('_') + 1);
+                data[name] = input.value;
+            });
+        }
+
+        themesData.push({
+            theme_id: themeId,
+            template_version: version,
+            data: data
+        });
+    });
+
+    fetch("{{ url_for('save_all_responses') }}", {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ themes: themesData })
+    })
+    .then(response => response.json())
+    .then(result => {
+        if (result.success) {
+            status.innerText = "Dernière sauvegarde à " + new Date().toLocaleTimeString();
+            status.className = "text-success";
+        } else {
+            status.innerText = "Erreur lors de la sauvegarde.";
+            status.className = "text-danger";
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        status.innerText = "Erreur réseau.";
+        status.className = "text-danger";
+    });
+}
+</script>
 {% endblock %}
