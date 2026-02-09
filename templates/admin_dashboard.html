@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h2 class="section-title">Tableau de bord Administrateur</h2>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-6">
+        <div class="card shadow-sm mb-4">
+            <div class="card-header">Gérer les Sections</div>
+            <div class="card-body">
+                <p>Ajouter ou modifier les sections (services/équipes) qui remplissent les formulaires.</p>
+                <a href="{{ url_for('admin_sections') }}" class="btn btn-royal">Gérer les sections</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card shadow-sm mb-4">
+            <div class="card-header">Gérer les Formulaires</div>
+            <div class="card-body">
+                <p>Modifier les libellés des questions et créer de nouvelles versions.</p>
+                <a href="{{ url_for('admin_forms') }}" class="btn btn-royal">Gérer les modèles</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-2">
+    <div class="col-12">
+        <div class="card shadow-sm">
+            <div class="card-header">Récapitulatif des saisies</div>
+            <div class="card-body">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Section</th>
+                            <th>Formulaire 1</th>
+                            <th>Formulaire 2</th>
+                            <th>Formulaire 3</th>
+                            <th>Formulaire 4</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- TODO: Afficher l'état d'avancement -->
+                        <tr>
+                            <td colspan="5" class="text-center text-muted">Bientôt disponible</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
