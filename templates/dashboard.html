@@ -32,10 +32,30 @@
             {% set data = responses.get(template.theme, {}) %}
 
             {% if template.structure.type == 'budget' %}
+                {% set ns = namespace(last_main_prefix="") %}
                 {% for group in template.structure.groups %}
-                    <div class="subtitle-abc">
-                        {{ group.title }}
-                    </div>
+                    {% set parts = group.title.split(' - ') %}
+
+                    {% if parts|length >= 2 %}
+                        {% set main_prefix = parts[0] ~ " - " ~ parts[1] %}
+                        {% if main_prefix != ns.last_main_prefix %}
+                            <div class="title-frame mt-4">
+                                <h4>{{ main_prefix }}</h4>
+                            </div>
+                            {% set ns.last_main_prefix = main_prefix %}
+                        {% endif %}
+
+                        {% if parts|length > 2 %}
+                            <div class="subtitle-abc">
+                                {{ parts[2:] | join(' - ') }}
+                            </div>
+                        {% endif %}
+                    {% else %}
+                        <div class="title-frame mt-4">
+                            <h4>{{ group.title }}</h4>
+                        </div>
+                    {% endif %}
+
                     <div class="row">
                         <div class="col-lg-11">
                             {% for field in group.fields %}
